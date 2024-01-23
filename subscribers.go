@@ -17,14 +17,12 @@ type Subscriber struct {
 	SubscriberAttributes       map[string]SubscriberAttribute `json:"subscriber_attributes"`
 }
 
-// https://docs.revenuecat.com/reference#the-entitlement-object
 type Entitlement struct {
 	ExpiresDate       time.Time `json:"expires_date"`
 	PurchaseDate      time.Time `json:"purchase_date"`
 	ProductIdentifier string    `json:"product_identifier"`
 }
 
-// https://docs.revenuecat.com/reference#the-subscription-object
 type Subscription struct {
 	ExpiresDate             *time.Time `json:"expires_date"`
 	PurchaseDate            time.Time  `json:"purchase_date"`
@@ -36,7 +34,6 @@ type Subscription struct {
 	BillingIssuesDetectedAt *time.Time `json:"billing_issues_detected_at"`
 }
 
-// https://docs.revenuecat.com/reference#section-the-non-subscription-object
 type NonSubscription struct {
 	ID           string    `json:"id"`
 	PurchaseDate time.Time `json:"purchase_date"`
@@ -44,7 +41,6 @@ type NonSubscription struct {
 	IsSandbox    bool      `json:"is_sandbox"`
 }
 
-// https://docs.revenuecat.com/reference#section-the-subscriber-attribute-object
 type SubscriberAttribute struct {
 	Value     string
 	UpdatedAt time.Time
@@ -60,7 +56,7 @@ const (
 	IntroPeriodType  PeriodType = "intro"
 )
 
-// PeriodType holds the predefined values for a store.
+// Store holds the predefined values for a store.
 type Store string
 
 // https://docs.revenuecat.com/reference#the-subscription-object
@@ -94,7 +90,7 @@ func (c *Client) GetSubscriberWithPlatform(userID string, platform string) (Subs
 	var resp struct {
 		Subscriber Subscriber `json:"subscriber"`
 	}
-	err := c.do("GET", "subscribers/"+userID, nil, platform, &resp, true)
+	err := c.do("GET", "subscribers/"+userID, nil, platform, &resp, 1)
 	return resp.Subscriber, err
 }
 
@@ -106,13 +102,13 @@ func (c *Client) UpdateSubscriberAttributes(userID string, attributes map[string
 	}{
 		Attributes: attributes,
 	}
-	return c.call("POST", "subscribers/"+userID+"/attributes", req, "", nil)
+	return c.call("POST", "subscribers/"+userID+"/attributes", 1, req, "", nil)
 }
 
 // DeleteSubscriber permanently deletes a subscriber.
 // https://docs.revenuecat.com/reference#subscribersapp_user_id
 func (c *Client) DeleteSubscriber(userID string) error {
-	return c.call("DELETE", "subscribers/"+userID, nil, "", nil)
+	return c.call("DELETE", "subscribers/"+userID, 1, nil, "", nil)
 }
 
 func (attr SubscriberAttribute) MarshalJSON() ([]byte, error) {

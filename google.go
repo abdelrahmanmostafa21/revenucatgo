@@ -9,7 +9,7 @@ func (c *Client) RefundGoogleSubscription(userID string, id string) (Subscriber,
 		Subscriber Subscriber `json:"subscriber"`
 	}
 
-	err := c.call("POST", "subscribers/"+userID+"/subscriptions/"+id+"/revoke", nil, "", &resp)
+	err := c.call("POST", "subscribers/"+userID+"/subscriptions/"+id+"/revoke", 1, nil, "", &resp)
 	return resp.Subscriber, err
 }
 
@@ -26,6 +26,6 @@ func (c *Client) DeferGoogleSubscription(userID string, id string, nextExpiry ti
 		ExpiryTime: toMilliseconds(nextExpiry),
 	}
 
-	err := c.call("POST", "subscribers/"+userID+"/subscriptions/"+id+"/defer", req, "", &resp)
+	err := c.call("POST", "subscribers/"+userID+"/subscriptions/"+id+"/defer", 1, req, "", &resp)
 	return resp.Subscriber, err
 }

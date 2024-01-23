@@ -19,7 +19,7 @@ func (c *Client) OverrideOffering(userID string, offeringUUID string) (Subscribe
 	var resp struct {
 		Subscriber Subscriber `json:"subscriber"`
 	}
-	err := c.call("POST", "subscribers/"+userID+"/offerings/"+offeringUUID+"/override", nil, "", &resp)
+	err := c.call("POST", "subscribers/"+userID+"/offerings/"+offeringUUID+"/override", 1, nil, "", &resp)
 	return resp.Subscriber, err
 }
 
@@ -29,7 +29,7 @@ func (c *Client) DeleteOfferingOverride(userID string) (Subscriber, error) {
 	var resp struct {
 		Subscriber Subscriber `json:"subscriber"`
 	}
-	err := c.call("DELETE", "subscribers/"+userID+"/offerings/override", nil, "", &resp)
+	err := c.call("DELETE", "subscribers/"+userID+"/offerings/override", 1, nil, "", &resp)
 	return resp.Subscriber, err
 }
 
@@ -41,18 +41,18 @@ func (c *Client) GetOfferings(userID, platform string) ([]Offering, string, erro
 		Offerings         []Offering `json:"offerings"`
 	}{}
 
-	err := c.do(http.MethodGet, fmt.Sprintf("subscribers/%s/offerings", userID), nil, platform, &resp, true)
+	err := c.do(http.MethodGet, fmt.Sprintf("subscribers/%s/offerings", userID), nil, platform, &resp, 1)
 	return resp.Offerings, resp.CurrentOfferingId, err
 }
 
 func (c *Client) GetAllOfferings(appID string) ([]Offering, error) {
 	var resp []Offering
-	err := c.call("GET", fmt.Sprintf("developers/me/apps/%s/new_offerings", appID), nil, "", &resp)
+	err := c.call("GET", fmt.Sprintf("developers/me/apps/%s/new_offerings", appID), 1, nil, "", &resp)
 	return resp, err
 }
 
 func (c *Client) CreateOffering(appID string, offering *Offering) (Offering, error) {
 	var resp Offering
-	err := c.call("POST", fmt.Sprintf("developers/me/apps/%s/new_offerings", appID), offering, "", &resp)
+	err := c.call("POST", fmt.Sprintf("developers/me/apps/%s/new_offerings", appID), 1, offering, "", &resp)
 	return resp, err
 }

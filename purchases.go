@@ -36,6 +36,6 @@ func (c *Client) CreatePurchase(userID string, receipt string, opt *CreatePurcha
 		platform = opt.Platform
 	}
 
-	err := c.call("POST", "receipts", req, platform, &resp)
+	err := c.call("POST", "receipts", 1, req, platform, &resp)
 	return resp.Subscriber, err
 }

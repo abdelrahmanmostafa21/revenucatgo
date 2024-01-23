@@ -1,9 +1,5 @@
 package revenuecat
 
-import (
-	"fmt"
-)
-
 type Package struct {
 	ID                        string    `json:"id,omitempty"`
 	Identifier                string    `json:"identifier"`
@@ -15,38 +11,22 @@ type Package struct {
 }
 
 type Product struct {
-	CreatedAt  string `json:"created_at,omitempty"`
-	ID         string `json:"id,omitempty"`
-	Identifier string `json:"identifier,omitempty"`
-	Store      string `json:"store,omitempty"`
+	AppID           string `json:"app_id"`
+	CreatedAt       int64  `json:"created_at"`
+	DisplayName     any    `json:"display_name"`
+	ID              string `json:"id"`
+	Object          string `json:"object"`
+	StoreIdentifier string `json:"store_identifier"`
+	Subscription    struct {
+		Duration            any `json:"duration"`
+		GracePeriodDuration any `json:"grace_period_duration"`
+		TrialDuration       any `json:"trial_duration"`
+	} `json:"subscription"`
+	Type string `json:"type"`
 }
 
-func (c *Client) CreatePackage(appID string, p *Package) (Package, error) {
-	resp := Package{}
-	err := c.call("POST", "developers/me/apps/"+appID+"/new_packages", p, "", &resp)
-	return resp, err
-}
-
-func (c *Client) AttachProduct(appID, pkgID string, productIDs ...string) (Package, error) {
-	body := struct {
-		ProductsIDs []string `json:"products_ids"`
-	}{
-		ProductsIDs: productIDs,
-	}
-
-	resp := Package{}
-	err := c.call("POST", fmt.Sprintf("developers/me/apps/%s/new_packages/%s/attach_products", appID, pkgID), body, "", &resp)
-	return resp, err
-}
-
-func (c *Client) GetProducts(appID string) ([]Product, error) {
-	var resp []Product
-	err := c.call("GET", fmt.Sprintf("developers/me/apps/%s/new_products", appID), nil, "", &resp)
-	return resp, err
-}
-
-func (c *Client) CreateProduct(appID string, p *Product) (Product, error) {
-	resp := Product{}
-	err := c.call("POST", fmt.Sprintf("developers/me/apps/%s/new_products", appID), p, "", &resp)
+func (c *Client) ListAllProducts(projectId string) (RVCPageResp[Product], error) {
+	var resp RVCPageResp[Product]
+	err := c.call("GET", "projects/"+projectId+"/products", 2, nil, "", &resp)
 	return resp, err
 }

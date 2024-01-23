@@ -34,5 +34,5 @@ func (c *Client) AddUserAttribution(userID string, network Network, data Attribu
 		Network: network,
 	}
 
-	return c.call("POST", "subscribers/"+userID+"/attribution", req, "", &resp)
+	return c.call("POST", "subscribers/"+userID+"/attribution", 1, req, "", &resp)
 }

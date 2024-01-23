@@ -6,17 +6,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 )
 
 // Client makes authorized calls to the RevenueCat API.
 type Client struct {
-	apiKey    string
-	publicKey string
-	cookie    string
-	apiURL    string
-	http      doer
+	apiKeyV1 string
+	apiKeyV2 string
+	apiURL   string
+	http     doer
 }
 
 type doer interface {
@@ -25,7 +23,7 @@ type doer interface {
 
 // New returns a new *Client for the provided API key.
 // For more information on authentication, see https://docs.revenuecat.com/docs/authentication.
-func New(apiKey, publicKey, cookie string, client *http.Client) *Client {
+func New(apiKeyV1, apiKeyV2, version string, client *http.Client) *Client {
 	if client == nil {
 		client = &http.Client{
 			// Set a long timeout here since calls to Apple are probably invloved.
@@ -34,15 +32,14 @@ func New(apiKey, publicKey, cookie string, client *http.Client) *Client {
 	}
 
 	return &Client{
-		apiKey:    apiKey,
-		publicKey: publicKey,
-		apiURL:    "https://api.revenuecat.com/v1/",
-		http:      client,
-		cookie:    cookie,
+		apiKeyV1: apiKeyV1,
+		apiKeyV2: apiKeyV2,
+		apiURL:   "https://api.revenuecat.com/",
+		http:     client,
 	}
 }
 
-func (c *Client) do(method, path string, reqBody interface{}, platform string, respBody interface{}, public bool) error {
+func (c *Client) do(method, path string, reqBody interface{}, platform string, respBody interface{}, apiVersion int) error {
 	var reqBodyJSON io.Reader
 	if reqBody != nil {
 		js, err := json.Marshal(reqBody)
@@ -51,21 +48,22 @@ func (c *Client) do(method, path string, reqBody interface{}, platform string, r
 		}
 		reqBodyJSON = bytes.NewBuffer(js)
 	}
+	c.apiURL = c.apiURL + "v1" + "/"
+	if apiVersion == 2 {
+		c.apiURL = c.apiURL + "v2" + "/"
+	}
 	req, err := http.NewRequest(method, c.apiURL+path, reqBodyJSON)
 	if err != nil {
 		return fmt.Errorf("error creating request: %v", err)
 	}
 
-	if strings.Contains(path, "developers/me/") {
-		req.Header.Add("Cookie", c.cookie)
-		req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	} else {
-		auth := "Bearer " + c.apiKey
-		if public {
-			auth = "Bearer " + c.publicKey
-		}
-		req.Header.Add("Authorization", auth)
+	apiKey := c.apiKeyV1
+	if apiVersion == 2 {
+		apiKey = c.apiKeyV2
 	}
+	auth := "Bearer " + apiKey
+	req.Header.Add("Authorization", auth)
+
 	req.Header.Add("Content-Type", "application/json")
 	if platform != "" {
 		req.Header.Add("X-Platform", platform)
@@ -95,6 +93,6 @@ func (c *Client) do(method, path string, reqBody interface{}, platform string, r
 	return nil
 }
 
-func (c *Client) call(method, path string, reqBody interface{}, platform string, respBody interface{}) error {
-	return c.do(method, path, reqBody, platform, respBody, false)
+func (c *Client) call(method, path string, apiVersion int, reqBody interface{}, platform string, respBody interface{}) error {
+	return c.do(method, path, reqBody, platform, respBody, apiVersion)
 }

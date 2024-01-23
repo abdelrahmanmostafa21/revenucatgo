@@ -20,7 +20,7 @@ func (c *Client) GrantEntitlement(userID string, id string, duration Duration, s
 		req.StartTime = toMilliseconds(startTime)
 	}
 
-	err := c.call("POST", "subscribers/"+userID+"/entitlements/"+id+"/promotional", req, "", &resp)
+	err := c.call("POST", "subscribers/"+userID+"/entitlements/"+id+"/promotional", 1, req, "", &resp)
 	return resp.Subscriber, err
 }
 
@@ -31,6 +31,6 @@ func (c *Client) RevokeEntitlement(userID string, id string) (Subscriber, error)
 		Subscriber Subscriber `json:"subscriber"`
 	}
 
-	err := c.call("POST", "subscribers/"+userID+"/entitlements/"+id+"/revoke_promotionals", nil, "", &resp)
+	err := c.call("POST", "subscribers/"+userID+"/entitlements/"+id+"/revoke_promotionals", 1, nil, "", &resp)
 	return resp.Subscriber, err
 }
