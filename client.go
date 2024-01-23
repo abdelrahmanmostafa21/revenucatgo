@@ -23,7 +23,7 @@ type doer interface {
 
 // New returns a new *Client for the provided API key.
 // For more information on authentication, see https://docs.revenuecat.com/docs/authentication.
-func New(apiKeyV1, apiKeyV2, version string, client *http.Client) *Client {
+func New(apiKeyV1, apiKeyV2 string, client *http.Client) *Client {
 	if client == nil {
 		client = &http.Client{
 			// Set a long timeout here since calls to Apple are probably invloved.
