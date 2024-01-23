@@ -5,22 +5,31 @@ import (
 	"time"
 )
 
+type SubscriberResp struct {
+	RequestDate   time.Time  `json:"request_date"`
+	RequestDateMs int64      `json:"request_date_ms"`
+	Subscriber    Subscriber `json:"subscriber"`
+}
+
 // Subscriber holds a subscriber returned by the RevenueCat API.
 type Subscriber struct {
-	OriginalAppUserID          string                         `json:"original_app_user_id"`
-	OriginalApplicationVersion *string                        `json:"original_application_version"`
+	Entitlements               map[string]Entitlement         `json:"entitlements"`
 	FirstSeen                  time.Time                      `json:"first_seen"`
 	LastSeen                   time.Time                      `json:"last_seen"`
-	Entitlements               map[string]Entitlement         `json:"entitlements"`
+	ManagementURL              string                         `json:"management_url"`
+	OriginalAppUserID          string                         `json:"original_app_user_id"`
+	OriginalApplicationVersion *string                        `json:"original_application_version"`
+	OriginalPurchaseDate       time.Time                      `json:"original_purchase_date"`
 	Subscriptions              map[string]Subscription        `json:"subscriptions"`
 	NonSubscriptions           map[string][]NonSubscription   `json:"non_subscriptions"`
 	SubscriberAttributes       map[string]SubscriberAttribute `json:"subscriber_attributes"`
 }
 
 type Entitlement struct {
-	ExpiresDate       time.Time `json:"expires_date"`
-	PurchaseDate      time.Time `json:"purchase_date"`
-	ProductIdentifier string    `json:"product_identifier"`
+	ExpiresDate            time.Time `json:"expires_date"`
+	GracePeriodExpiresDate time.Time `json:"grace_period_expires_date"`
+	PurchaseDate           time.Time `json:"purchase_date"`
+	ProductIdentifier      string    `json:"product_identifier"`
 }
 
 type Subscription struct {
@@ -35,15 +44,17 @@ type Subscription struct {
 }
 
 type NonSubscription struct {
-	ID           string    `json:"id"`
-	PurchaseDate time.Time `json:"purchase_date"`
-	Store        Store     `json:"store"`
-	IsSandbox    bool      `json:"is_sandbox"`
+	ID                   string    `json:"id"`
+	IsSandbox            bool      `json:"is_sandbox"`
+	OriginalPurchaseDate time.Time `json:"original_purchase_date"`
+	PurchaseDate         time.Time `json:"purchase_date"`
+	Store                Store     `json:"store"`
+	StoreTransactionID   string    `json:"store_transaction_id"`
 }
 
 type SubscriberAttribute struct {
-	Value     string
-	UpdatedAt time.Time
+	Value     string `json:"value"`
+	UpdatedAt int64  `json:"updated_at_ms"`
 }
 
 // PeriodType holds the predefined values for a subscription period.
@@ -79,19 +90,17 @@ func (s Subscriber) IsEntitledTo(entitlement string) bool {
 
 // GetSubscriber gets the latest subscriber info or creates one if it doesn't exist.
 // https://docs.revenuecat.com/reference#subscribers
-func (c *Client) GetSubscriber(userID string) (Subscriber, error) {
+func (c *Client) GetSubscriber(userID string) (SubscriberResp, error) {
 	return c.GetSubscriberWithPlatform(userID, "")
 }
 
 // GetSubscriberWithPlatform gets the latest subscriber info or creates one if it doesn't exist, updating the subscriber record's last_seen
 // value for the platform provided.
 // https://docs.revenuecat.com/reference#subscribers
-func (c *Client) GetSubscriberWithPlatform(userID string, platform string) (Subscriber, error) {
-	var resp struct {
-		Subscriber Subscriber `json:"subscriber"`
-	}
+func (c *Client) GetSubscriberWithPlatform(userID string, platform string) (SubscriberResp, error) {
+	var resp SubscriberResp
 	err := c.do("GET", "subscribers/"+userID, nil, platform, &resp, 1)
-	return resp.Subscriber, err
+	return resp, err
 }
 
 // UpdateSubscriberAttributes updates subscriber attributes for a user.
@@ -111,10 +120,10 @@ func (c *Client) DeleteSubscriber(userID string) error {
 	return c.call("DELETE", "subscribers/"+userID, 1, nil, "", nil)
 }
 
-func (attr SubscriberAttribute) MarshalJSON() ([]byte, error) {
+func (attr *SubscriberAttribute) MarshalJSON() ([]byte, error) {
 	var updatedAt int64
-	if !attr.UpdatedAt.IsZero() {
-		updatedAt = toMilliseconds(attr.UpdatedAt)
+	if !fromMilliseconds(attr.UpdatedAt).IsZero() {
+		updatedAt = attr.UpdatedAt
 	}
 	return json.Marshal(&struct {
 		Value     string `json:"value"`
@@ -135,7 +144,7 @@ func (attr *SubscriberAttribute) UnmarshalJSON(data []byte) error {
 	}
 	attr.Value = jsonAttr.Value
 	if jsonAttr.UpdatedAt > 0 {
-		attr.UpdatedAt = fromMilliseconds(jsonAttr.UpdatedAt)
+		attr.UpdatedAt = jsonAttr.UpdatedAt
 	}
 	return nil
 }
