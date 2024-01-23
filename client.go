@@ -48,9 +48,10 @@ func (c *Client) do(method, path string, reqBody interface{}, platform string, r
 		}
 		reqBodyJSON = bytes.NewBuffer(js)
 	}
-	c.apiURL = c.apiURL + "v1" + "/"
 	if apiVersion == 2 {
 		c.apiURL = c.apiURL + "v2" + "/"
+	} else {
+		c.apiURL = c.apiURL + "v1" + "/"
 	}
 	req, err := http.NewRequest(method, c.apiURL+path, reqBodyJSON)
 	if err != nil {
