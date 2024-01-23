@@ -8,5 +8,5 @@ type RVCPager struct {
 
 type RVCPageResp[T any] struct {
 	RVCPager
-	Items T `json:"items"`
+	Items []T `json:"items"`
 }
