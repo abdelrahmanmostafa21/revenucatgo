@@ -6,7 +6,7 @@ import (
 
 func TestRefundGoogleSubscription(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.RefundGoogleSubscription("123", "sub")
@@ -20,7 +20,7 @@ func TestRefundGoogleSubscription(t *testing.T) {
 
 func TestDeferGoogleSubscription(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.DeferGoogleSubscription("123", "sub", staticTime(t, "2020-01-15 23:54:17"))

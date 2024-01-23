@@ -8,7 +8,7 @@ import (
 
 func TestGetSubscriber(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.GetSubscriber("123")
@@ -22,7 +22,7 @@ func TestGetSubscriber(t *testing.T) {
 
 func TestGetSubscriberWithPlatform(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.GetSubscriberWithPlatform("123", "ios")
@@ -37,7 +37,7 @@ func TestGetSubscriberWithPlatform(t *testing.T) {
 
 func TestUpdateSubscriberAttributes(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	attrs := map[string]SubscriberAttribute{
@@ -59,7 +59,7 @@ func TestUpdateSubscriberAttributes(t *testing.T) {
 
 func TestDeleteSubscriber(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	err := rc.DeleteSubscriber("123")

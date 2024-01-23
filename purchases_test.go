@@ -6,7 +6,7 @@ import (
 
 func TestCreatePurchaseWithoutOpts(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.CreatePurchase("123", "testreceipt", nil)
@@ -22,7 +22,7 @@ func TestCreatePurchaseWithoutOpts(t *testing.T) {
 
 func TestCreatePurchaseWithOpts(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	opt := &CreatePurchaseOptions{

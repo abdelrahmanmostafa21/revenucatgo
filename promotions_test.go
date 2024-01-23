@@ -6,7 +6,7 @@ import (
 
 func TestGrantEntitlement(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.GrantEntitlement("123", "all", ThreeMonth, staticTime(t, "2020-01-15 23:54:17"))
@@ -21,7 +21,7 @@ func TestGrantEntitlement(t *testing.T) {
 
 func TestRevokeEntitlement(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.RevokeEntitlement("123", "all")

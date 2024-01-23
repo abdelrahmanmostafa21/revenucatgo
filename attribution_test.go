@@ -6,7 +6,7 @@ import (
 
 func TestAddUserAttribution(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	err := rc.AddUserAttribution("123", Facebook, AttributionData{IDFA: "test"})

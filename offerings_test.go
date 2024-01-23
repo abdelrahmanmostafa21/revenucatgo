@@ -6,7 +6,7 @@ import (
 
 func TestOverrideOffering(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.OverrideOffering("123", "testUUID")
@@ -20,7 +20,7 @@ func TestOverrideOffering(t *testing.T) {
 
 func TestDeleteOfferingOverride(t *testing.T) {
 	cl := newMockClient(t, 200, nil, nil)
-	rc := New("apikey")
+	rc := New("apikey", "", "", nil)
 	rc.http = cl
 
 	_, err := rc.DeleteOfferingOverride("123")
