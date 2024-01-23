@@ -1,5 +1,7 @@
 package revenuecat
 
+import "fmt"
+
 type App struct {
 	AppStore struct {
 		BundleID string `json:"bundle_id"`
@@ -17,12 +19,12 @@ type App struct {
 
 func (c *Client) ListAllProjectApps(projectId string) (RVCPageResp[Project], error) {
 	var resp RVCPageResp[Project]
-	err := c.call("GET", "projects/"+projectId+"/apps", 2, nil, "", &resp)
+	err := c.call("GET", fmt.Sprintf("projects/%s/apps", projectId), 2, nil, "", &resp)
 	return resp, err
 }
 
 func (c *Client) GetProjectApp(projectId, appId string) (RVCPageResp[Project], error) {
 	var resp RVCPageResp[Project]
-	err := c.call("GET", "projects/"+projectId+"/apps/"+appId, 2, nil, "", &resp)
+	err := c.call("GET", fmt.Sprintf("projects/%s/apps/%s", projectId, appId), 2, nil, "", &resp)
 	return resp, err
 }

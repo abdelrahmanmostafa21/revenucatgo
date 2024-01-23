@@ -1,5 +1,7 @@
 package revenuecat
 
+import "fmt"
+
 type Package struct {
 	ID                        string    `json:"id,omitempty"`
 	Identifier                string    `json:"identifier"`
@@ -27,6 +29,6 @@ type Product struct {
 
 func (c *Client) ListAllProducts(projectId string) (RVCPageResp[Product], error) {
 	var resp RVCPageResp[Product]
-	err := c.call("GET", "projects/"+projectId+"/products", 2, nil, "", &resp)
+	err := c.call("GET", fmt.Sprintf("projects/%s/products", projectId), 2, nil, "", &resp)
 	return resp, err
 }
